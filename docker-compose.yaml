@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lab6-db
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lab6-app
+    working_dir: /app
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@db:5432/app_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: lab6-tests
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@db:5432/app_db
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["pytest", "-v"]
+
+volumes:
+  postgres_data:
+
