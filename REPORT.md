@@ -1,77 +1,70 @@
-# Laboratory Work 6 Report
+# Звіт до лабораторної роботи 6
 
-## Goal
+## Що потрібно було зробити
 
-Automate build, test, and delivery steps for a small web service using Docker and CI/CD tools.
+У цій лабораторній треба було підготувати проєкт так, щоб його можна було не тільки запускати локально, а й нормально перевіряти та розгортати через DevOps-інструменти. Тобто основний акцент був на Docker, `docker-compose`, автоматичних тестах і CI.
 
-## Project Links
+## Що зроблено
 
-- Repository: `https://github.com/ValeraKozak/l6_ref`
-- CI workflow: `https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml`
-- API docs after local start: `http://localhost:8000/docs`
+У межах роботи я підготував невеликий вебсервіс на FastAPI, який працює з PostgreSQL. Для нього створено `Dockerfile`, окремий `Dockerfile.test`, а також `docker-compose.yaml`, де описано запуск застосунку, бази даних і тестового контейнера.
 
-## Completed Work
+Окремо налаштовано GitHub Actions. Під час кожного пушу або pull request workflow встановлює залежності, запускає `flake8`, виконує `pytest`, а після цього перевіряє, чи збирається Docker-образ.
 
-- Implemented a sample FastAPI service with PostgreSQL integration.
-- Added Docker support through `Dockerfile` and `Dockerfile.test`.
-- Added `docker-compose.yaml` for `app + db + tests`.
-- Configured CI in GitHub Actions with linting, automated tests, and Docker build.
-- Updated `README.md` with run instructions, environment variables, API endpoints, and verification steps.
+Також було оновлено документацію: у `README.md` додано інструкції для локального запуску, запуску через Docker, опис змінних середовища, список основних endpoint-ів, способи перевірки результату та приклади запитів.
 
-## Main Steps
+## Структура рішення
 
-1. Created a REST API with endpoints for health checks and item management.
-2. Added SQLAlchemy-based database integration.
-3. Created automated tests with `pytest`.
-4. Containerized the service and test environment with Docker.
-5. Added a CI workflow for code quality and build verification.
-6. Added end-user and developer documentation with launch, test, and verification instructions.
+У підсумку проєкт складається з таких основних частин:
 
-## Architecture
+- API на FastAPI
+- база даних PostgreSQL
+- Docker-конфігурація для запуску
+- тестовий контейнер
+- CI-конвеєр у GitHub Actions
+
+## Схема роботи
 
 ```mermaid
 flowchart LR
-    Dev[Developer] --> GitHub[GitHub Repository]
-    GitHub --> Actions[GitHub Actions CI]
-    Actions --> Lint[flake8]
-    Actions --> Tests[pytest]
-    Actions --> Build[Docker build]
-    Compose[docker compose] --> App[FastAPI app container]
-    Compose --> Db[PostgreSQL container]
+    Dev[Розробник] --> Repo[GitHub репозиторій]
+    Repo --> CI[GitHub Actions]
+    CI --> Lint[flake8]
+    CI --> Tests[pytest]
+    CI --> Build[Docker build]
+    Compose[docker compose] --> App[FastAPI]
+    Compose --> Db[PostgreSQL]
     App --> Db
 ```
 
-## Verification Results
+## Що перевірено
 
-- `docker compose config` completed successfully.
-- `docker build -t lab6-devops-app:local .` completed successfully.
-- `docker compose run --build --rm tests` completed successfully.
-- `docker run --rm l6-tests:latest flake8 app tests` completed successfully.
-- `GET /health` returned `{"status":"ok"}` after launching `app + db`.
+Під час виконання роботи були перевірені такі речі:
 
-## Key Commands Used
+- `docker compose config`
+- збірка образу через `docker build`
+- запуск тестів через `docker compose run --build --rm tests`
+- перевірка стилю через `flake8`
+- робота endpoint-а `GET /health` після запуску контейнерів
 
-```bash
-docker compose up --build
-docker compose run --build --rm tests
-docker compose down
-```
+Тобто на практиці було підтверджено, що застосунок збирається, запускається і проходить базову автоматичну перевірку.
 
-## Materials For Demo
+## Що можна показати на захисті
 
-- Show the repository with the CI badge in `README.md`.
-- Start containers with `docker compose up --build`.
-- Open Swagger UI at `http://localhost:8000/docs`.
-- Execute `GET /health` and `POST /api/v1/items`.
-- Show the successful GitHub Actions workflow run.
+На демонстрації достатньо показати:
 
-## Screenshots To Include In Submission
+1. репозиторій на GitHub
+2. запуск `docker compose up --build`
+3. Swagger UI за адресою `http://localhost:8000/docs`
+4. виконання `GET /health` і `POST /api/v1/items`
+5. успішний запуск GitHub Actions
 
-1. Docker containers running in terminal.
-2. Swagger UI with available endpoints.
-3. Successful API request result.
-4. Green GitHub Actions pipeline.
+## Які скріншоти варто додати
 
-## Conclusion
+- термінал із запущеними контейнерами
+- Swagger UI
+- результат API-запиту
+- зелений CI pipeline у GitHub Actions
 
-The project satisfies the laboratory requirements: the application is containerized, a multi-service Docker Compose environment is configured, CI checks run automatically in GitHub Actions, and the documentation describes launch, testing, environment variables, API endpoints, and validation steps.
+## Висновок
+
+У результаті лабораторної роботи проєкт підготовлено до нормального запуску й перевірки: застосунок контейнеризований, база даних підключається через `docker-compose`, тести запускаються окремо, а CI автоматично перевіряє код і збірку. Документація також підготовлена так, щоб було зрозуміло, як цей сервіс запускати і як показати його роботу.

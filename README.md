@@ -1,29 +1,29 @@
-# Lab 6: DevOps, CI/CD, Docker
+# Лабораторна робота 6: DevOps, CI/CD, Docker
 
 [![CI](https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml/badge.svg)](https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml)
 
-Demonstration project for laboratory work 6. The repository contains a small REST API built with FastAPI, connected to PostgreSQL, containerized with Docker, and prepared for CI/CD with GitHub Actions.
+Це невеликий навчальний проєкт для лабораторної роботи №6. У репозиторії реалізовано простий REST API на FastAPI, який працює з PostgreSQL. Для запуску використовується Docker, а для автоматичної перевірки коду та тестів налаштовано GitHub Actions.
 
-Repository: `https://github.com/ValeraKozak/l6_ref`
+Репозиторій: `https://github.com/ValeraKozak/l6_ref`
 
-## Project Structure
+## Що є в проєкті
 
-- `app/` - API source code
-- `tests/` - unit and API tests
-- `Dockerfile` - application image
-- `Dockerfile.test` - separate test image
-- `docker-compose.yaml` - multi-container launch for app, database, and tests
-- `.github/workflows/ci.yml` - CI pipeline
-- `REPORT.md` - short final report
+- `app/` - основний код застосунку
+- `tests/` - тести
+- `Dockerfile` - образ для запуску застосунку
+- `Dockerfile.test` - образ для запуску тестів
+- `docker-compose.yaml` - запуск застосунку, бази даних і тестового контейнера
+- `.github/workflows/ci.yml` - конфігурація CI
+- `REPORT.md` - короткий звіт по виконаній роботі
 
-## Features
+## Основні endpoint-и
 
-- `GET /health` - health check
-- `GET /api/v1/items` - list all items
-- `GET /api/v1/items/{item_id}` - get one item
-- `POST /api/v1/items` - create a new item
+- `GET /health` - перевірка, чи сервіс працює
+- `GET /api/v1/items` - отримати список елементів
+- `GET /api/v1/items/{item_id}` - отримати один елемент за id
+- `POST /api/v1/items` - створити новий елемент
 
-Example request body for `POST /api/v1/items`:
+Приклад JSON для `POST /api/v1/items`:
 
 ```json
 {
@@ -32,26 +32,21 @@ Example request body for `POST /api/v1/items`:
 }
 ```
 
-## Environment Variables
+## Змінні середовища
 
-| Variable | Description | Example |
+| Змінна | Для чого потрібна | Приклад |
 |---|---|---|
-| `APP_HOST` | Host used by Uvicorn in the container or local run | `0.0.0.0` |
-| `APP_PORT` | Port used by Uvicorn in the container or local run | `8000` |
-| `DATABASE_URL` | Full SQLAlchemy connection string | `postgresql+psycopg://app_user:app_password@db:5432/app_db` |
+| `APP_HOST` | Хост, на якому запускається Uvicorn | `0.0.0.0` |
+| `APP_PORT` | Порт, на якому працює застосунок | `8000` |
+| `DATABASE_URL` | Рядок підключення до бази даних | `postgresql+psycopg://app_user:app_password@db:5432/app_db` |
 
-Copy `.env.example` to `.env` and update values if needed. `APP_HOST` and `APP_PORT` are now used directly by the container start command.
+Можна взяти `.env.example`, скопіювати його в `.env` і за потреби змінити значення під себе.
 
-## Run Locally Without Docker
+## Локальний запуск
 
-Prerequisites:
+### Варіант для PowerShell
 
-- Python 3.12+
-- PostgreSQL 16+ or SQLite for a quick local demo
-
-PowerShell:
-
-```bash
+```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
@@ -59,7 +54,7 @@ Copy-Item .env.example .env
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Bash:
+### Варіант для Bash
 
 ```bash
 python -m venv .venv
@@ -69,86 +64,90 @@ cp .env.example .env
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-For a simple local run without PostgreSQL, set:
+Якщо не хочеться піднімати PostgreSQL локально, можна для швидкої перевірки використати SQLite:
 
 ```env
 DATABASE_URL=sqlite:///./app.db
 ```
 
-The API will be available at:
+Після запуску можна відкрити:
 
 - `http://localhost:8000`
-- Swagger UI: `http://localhost:8000/docs`
+- `http://localhost:8000/docs`
 
-## Run With Docker Compose
+## Запуск через Docker
 
-Build and start the application with PostgreSQL:
+Щоб підняти застосунок разом із PostgreSQL:
 
 ```bash
 docker compose up --build
 ```
 
-Run tests in a separate container:
+Щоб окремо прогнати тести в контейнері:
 
 ```bash
 docker compose run --build --rm tests
 ```
 
-Stop the environment:
+Щоб зупинити все середовище:
 
 ```bash
 docker compose down
 ```
 
-## Tests and Quality Checks
+## Перевірка коду і тестів
 
-Local commands:
+Локально:
 
 ```bash
 flake8 app tests
 pytest -v
 ```
 
-Docker-based test command:
+Через Docker:
 
 ```bash
 docker compose run --rm tests
 ```
 
-Expected result:
+Очікувано:
 
-- `flake8` finishes without style errors
-- `pytest` reports passing tests
-- Docker image builds successfully
+- `flake8` не повинен показувати помилок
+- `pytest` має пройти успішно
+- Docker-образ має зібратися без проблем
 
-## How To Verify The Result
+## Як перевірити, що все працює
 
-1. Start the stack with `docker compose up --build`.
-2. Open `http://localhost:8000/docs`.
-3. Call `GET /health` and confirm response `{"status":"ok"}`.
-4. Use `POST /api/v1/items` to create an item.
-5. Use `GET /api/v1/items` to verify the item is stored in PostgreSQL.
+1. Виконати `docker compose up --build`.
+2. Відкрити `http://localhost:8000/docs`.
+3. Викликати `GET /health`.
+4. Створити елемент через `POST /api/v1/items`.
+5. Перевірити список через `GET /api/v1/items`.
 
-You can also test the API in Postman using the same endpoints.
+Для перевірки можна використати Swagger UI або Postman.
 
-## CI/CD Pipeline
+## CI/CD
 
-GitHub Actions workflow file: `.github/workflows/ci.yml`
+У проєкті використовується GitHub Actions.
 
-Workflow URL:
+Файл конфігурації:
+
+- `.github/workflows/ci.yml`
+
+Посилання:
 
 - `https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml`
 
-Pipeline stages:
+Що робить workflow:
 
-1. Install dependencies
-2. Run `flake8`
-3. Run `pytest`
-4. Build Docker image
+1. Встановлює залежності
+2. Запускає `flake8`
+3. Запускає `pytest`
+4. Збирає Docker-образ
 
-## Example Requests
+## Приклади запитів
 
-PowerShell:
+### PowerShell
 
 ```powershell
 Invoke-RestMethod -Uri http://localhost:8000/health
@@ -156,7 +155,7 @@ Invoke-RestMethod -Uri http://localhost:8000/api/v1/items -Method Post -ContentT
 Invoke-RestMethod -Uri http://localhost:8000/api/v1/items
 ```
 
-curl:
+### curl
 
 ```bash
 curl http://localhost:8000/health
