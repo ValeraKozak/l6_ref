@@ -10,22 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:16-alpine
+      mongodb:
+        image: mongo:7
         env:
-          POSTGRES_DB: app_db
-          POSTGRES_USER: app_user
-          POSTGRES_PASSWORD: app_password
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: rootpassword
         ports:
-          - 5432:5432
+          - 27017:27017
         options: >-
-          --health-cmd="pg_isready -U app_user -d app_db"
+          --health-cmd="mongosh --quiet --username root --password rootpassword --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\""
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
     env:
-      DATABASE_URL: postgresql://app_user:app_password@localhost:5432/app_db
+      DATABASE_URL: mongodb://root:rootpassword@localhost:27017/app_db?authSource=admin
 
     steps:
       - name: Checkout repository

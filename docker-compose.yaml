@@ -1,17 +1,16 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mongo:7
     container_name: lab6-db
     environment:
-      POSTGRES_DB: app_db
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_password
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
+      test: ["CMD-SHELL", "mongosh --quiet --username root --password rootpassword --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,7 +24,7 @@ services:
     environment:
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
-      DATABASE_URL: postgresql://app_user:app_password@db:5432/app_db
+      DATABASE_URL: mongodb://root:rootpassword@db:27017/app_db?authSource=admin
     ports:
       - "8000:8000"
     depends_on:
@@ -39,11 +38,11 @@ services:
     container_name: lab6-tests
     working_dir: /app
     environment:
-      DATABASE_URL: postgresql://app_user:app_password@db:5432/app_db
+      DATABASE_URL: mongodb://root:rootpassword@db:27017/app_db?authSource=admin
     depends_on:
       db:
         condition: service_healthy
     command: ["npm", "test"]
 
 volumes:
-  postgres_data:
+  mongo_data:

@@ -51,8 +51,7 @@ function createApp({ itemRepository }) {
 
   app.get("/api/v1/items/:itemId", async (request, response, next) => {
     try {
-      const itemId = Number(request.params.itemId);
-      const item = await itemRepository.getItemById(itemId);
+      const item = await itemRepository.getItemById(request.params.itemId);
 
       if (!item) {
         response.status(404).json({ detail: "Item not found" });

@@ -1,13 +1,16 @@
 const { config } = require("./config");
-const { createPool, waitForDatabase } = require("./db");
+const { createClient, getDatabaseName, waitForDatabase } = require("./db");
 const { createItemRepository } = require("./repositories/itemRepository");
 const { createApp } = require("./app");
 
 async function startServer() {
-  const pool = createPool(config.databaseUrl);
-  const itemRepository = createItemRepository(pool);
+  const client = createClient(config.databaseUrl);
 
-  await waitForDatabase(pool);
+  await waitForDatabase(client);
+
+  const database = client.db(getDatabaseName(config.databaseUrl));
+  const itemRepository = createItemRepository(database);
+
   await itemRepository.initialize();
 
   const app = createApp({ itemRepository });
@@ -19,7 +22,7 @@ async function startServer() {
 
   const shutdown = async () => {
     server.close(async () => {
-      await pool.end();
+      await client.close();
       process.exit(0);
     });
   };

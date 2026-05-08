@@ -8,7 +8,7 @@ const config = {
   appPort: Number(process.env.APP_PORT || 8000),
   databaseUrl:
     process.env.DATABASE_URL ||
-    "postgresql://app_user:app_password@localhost:5432/app_db",
+    "mongodb://root:rootpassword@localhost:27017/app_db?authSource=admin",
   nodeEnv: process.env.NODE_ENV || "development"
 };
 

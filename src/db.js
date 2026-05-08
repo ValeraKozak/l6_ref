@@ -1,15 +1,19 @@
-const { Pool } = require("pg");
+const { MongoClient } = require("mongodb");
 
-function createPool(connectionString) {
-  return new Pool({
-    connectionString
-  });
+function createClient(connectionString) {
+  return new MongoClient(connectionString);
 }
 
-async function waitForDatabase(pool, maxAttempts = 10, delayMs = 2000) {
+function getDatabaseName(connectionString) {
+  const url = new URL(connectionString);
+  return url.pathname.replace(/^\/+/, "") || "app_db";
+}
+
+async function waitForDatabase(client, maxAttempts = 10, delayMs = 2000) {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      await pool.query("SELECT 1");
+      await client.connect();
+      await client.db("admin").command({ ping: 1 });
       return;
     } catch (error) {
       if (attempt === maxAttempts) {
@@ -22,6 +26,7 @@ async function waitForDatabase(pool, maxAttempts = 10, delayMs = 2000) {
 }
 
 module.exports = {
-  createPool,
+  createClient,
+  getDatabaseName,
   waitForDatabase
 };

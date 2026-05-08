@@ -1,44 +1,58 @@
-function createItemRepository(pool) {
+const { ObjectId } = require("mongodb");
+
+function normalizeItem(document) {
+  return {
+    id: String(document._id),
+    name: document.name,
+    description: document.description
+  };
+}
+
+function createItemRepository(database) {
+  const collection = database.collection("items");
+
   return {
     async ping() {
-      await pool.query("SELECT 1");
+      await database.command({ ping: 1 });
     },
 
     async initialize() {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS items (
-          id SERIAL PRIMARY KEY,
-          name VARCHAR(100) NOT NULL,
-          description VARCHAR(255) NOT NULL
-        )
-      `);
+      await collection.createIndex({ name: 1 });
+    },
+
+    async clear() {
+      await collection.deleteMany({});
     },
 
     async listItems() {
-      const result = await pool.query(
-        "SELECT id, name, description FROM items ORDER BY id"
-      );
-      return result.rows;
+      const documents = await collection
+        .find({})
+        .sort({ _id: 1 })
+        .toArray();
+
+      return documents.map(normalizeItem);
     },
 
     async getItemById(id) {
-      const result = await pool.query(
-        "SELECT id, name, description FROM items WHERE id = $1",
-        [id]
-      );
-      return result.rows[0] || null;
+      if (!ObjectId.isValid(id)) {
+        return null;
+      }
+
+      const document = await collection.findOne({
+        _id: new ObjectId(id)
+      });
+
+      return document ? normalizeItem(document) : null;
     },
 
     async createItem({ name, description }) {
-      const result = await pool.query(
-        `
-          INSERT INTO items (name, description)
-          VALUES ($1, $2)
-          RETURNING id, name, description
-        `,
-        [name, description]
-      );
-      return result.rows[0];
+      const result = await collection.insertOne({ name, description });
+
+      return {
+        id: String(result.insertedId),
+        name,
+        description
+      };
     }
   };
 }

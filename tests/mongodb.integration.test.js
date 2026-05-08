@@ -1,50 +1,53 @@
 const request = require("supertest");
 const { createApp } = require("../src/app");
-const { createPool, waitForDatabase } = require("../src/db");
+const { createClient, getDatabaseName, waitForDatabase } = require("../src/db");
 const { createItemRepository } = require("../src/repositories/itemRepository");
 
 const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
 const describeIfDatabase = hasDatabaseUrl ? describe : describe.skip;
 
-describeIfDatabase("API with PostgreSQL", () => {
-  let pool;
+describeIfDatabase("API with MongoDB", () => {
+  let client;
   let app;
+  let itemRepository;
 
   beforeAll(async () => {
-    pool = createPool(process.env.DATABASE_URL);
-    await waitForDatabase(pool, 15, 1000);
+    client = createClient(process.env.DATABASE_URL);
+    await waitForDatabase(client, 15, 1000);
 
-    const itemRepository = createItemRepository(pool);
+    const database = client.db(getDatabaseName(process.env.DATABASE_URL));
+    itemRepository = createItemRepository(database);
     await itemRepository.initialize();
     app = createApp({ itemRepository });
   });
 
   beforeEach(async () => {
-    await pool.query("TRUNCATE TABLE items RESTART IDENTITY");
+    await itemRepository.clear();
   });
 
   afterAll(async () => {
-    await pool.end();
+    await client.close();
   });
 
-  test("creates and reads items through PostgreSQL", async () => {
+  test("creates and reads items through MongoDB", async () => {
     const createResponse = await request(app).post("/api/v1/items").send({
-      name: "PostgreSQL",
+      name: "MongoDB",
       description: "Integration test item"
     });
 
+    const itemId = createResponse.body.id;
     const listResponse = await request(app).get("/api/v1/items");
-    const singleResponse = await request(app).get("/api/v1/items/1");
+    const singleResponse = await request(app).get(`/api/v1/items/${itemId}`);
 
     expect(createResponse.statusCode).toBe(201);
     expect(createResponse.body).toMatchObject({
-      id: 1,
-      name: "PostgreSQL",
+      id: expect.any(String),
+      name: "MongoDB",
       description: "Integration test item"
     });
     expect(listResponse.statusCode).toBe(200);
     expect(listResponse.body).toHaveLength(1);
     expect(singleResponse.statusCode).toBe(200);
-    expect(singleResponse.body.name).toBe("PostgreSQL");
+    expect(singleResponse.body.name).toBe("MongoDB");
   });
 });

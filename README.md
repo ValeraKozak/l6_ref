@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml/badge.svg)](https://github.com/ValeraKozak/l6_ref/actions/workflows/ci.yml)
 
-Це версія лабораторної роботи на JavaScript. Застосунок написаний на Node.js з використанням Express, працює з PostgreSQL, запускається через Docker і перевіряється через GitHub Actions.
+Це версія лабораторної роботи на JavaScript. Застосунок написаний на Node.js з використанням Express, працює з MongoDB, запускається через Docker і перевіряється через GitHub Actions.
 
 Репозиторій: `https://github.com/ValeraKozak/l6_ref`
 
@@ -40,7 +40,7 @@
 |---|---|---|
 | `APP_HOST` | Хост, на якому запускається сервер | `0.0.0.0` |
 | `APP_PORT` | Порт застосунку | `8000` |
-| `DATABASE_URL` | Рядок підключення до PostgreSQL | `postgresql://app_user:app_password@db:5432/app_db` |
+| `DATABASE_URL` | Рядок підключення до MongoDB | `mongodb://root:rootpassword@db:27017/app_db?authSource=admin` |
 
 Можна взяти `.env.example`, скопіювати його в `.env` і змінити значення під себе.
 
@@ -69,7 +69,7 @@ npm run dev
 
 ## Запуск через Docker
 
-Щоб підняти застосунок разом із PostgreSQL:
+Щоб підняти застосунок разом із MongoDB:
 
 ```bash
 docker compose up --build
@@ -99,7 +99,7 @@ npm test
 Що саме перевіряється:
 
 - unit/API-тести для логіки endpoint-ів
-- інтеграційний тест із реальною PostgreSQL, якщо задано `DATABASE_URL`
+- інтеграційний тест із реальною MongoDB, якщо задано `DATABASE_URL`
 
 Через Docker:
 
@@ -152,7 +152,7 @@ Workflow:
 
 1. Встановлює npm-залежності
 2. Запускає `eslint`
-3. Запускає unit- та PostgreSQL integration тести
+3. Запускає unit- та MongoDB integration тести
 4. Збирає Docker-образ
 
 ## Що додати до фінальної здачі
