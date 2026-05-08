@@ -1,16 +1,14 @@
-FROM python:3.12-slim
+FROM node:22-alpine
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+ENV NODE_ENV=production
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package*.json ./
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn app.main:app --host ${APP_HOST:-0.0.0.0} --port ${APP_PORT:-8000}"]
+CMD ["npm", "start"]

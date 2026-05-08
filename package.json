@@ -1,0 +1,32 @@
+{
+  "name": "l6-ref",
+  "version": "1.0.0",
+  "description": "Laboratory work 6 project on Node.js, Docker, and CI/CD.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint .",
+    "test": "jest --runInBand --verbose"
+  },
+  "keywords": [
+    "express",
+    "postgresql",
+    "docker",
+    "github-actions"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.14.1",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.26.0",
+    "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
+  }
+}

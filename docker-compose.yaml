@@ -25,7 +25,7 @@ services:
     environment:
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
-      DATABASE_URL: postgresql+psycopg://app_user:app_password@db:5432/app_db
+      DATABASE_URL: postgresql://app_user:app_password@db:5432/app_db
     ports:
       - "8000:8000"
     depends_on:
@@ -39,12 +39,11 @@ services:
     container_name: lab6-tests
     working_dir: /app
     environment:
-      DATABASE_URL: postgresql+psycopg://app_user:app_password@db:5432/app_db
+      DATABASE_URL: postgresql://app_user:app_password@db:5432/app_db
     depends_on:
       db:
         condition: service_healthy
-    command: ["pytest", "-v"]
+    command: ["npm", "test"]
 
 volumes:
   postgres_data:
-

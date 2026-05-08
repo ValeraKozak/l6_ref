@@ -1,8 +1,4 @@
-.pytest_cache/
-.venv/
-__pycache__/
-app.db
 .env
-htmlcov/
-.coverage
-
+node_modules/
+coverage/
+npm-debug.log*
